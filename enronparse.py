@@ -3,7 +3,6 @@ from email.parser import Parser
 
 # http://pythonforengineers.com/analysing-the-enron-email-corpus/
 
-
 rootdir = "C:\\Corpus\\Enron Ham\\beck-s"
 
 def email_analyse(inputfile, to_email_list, from_email_list, email_body):
