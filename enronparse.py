@@ -1,43 +1,39 @@
 import os
 from email.parser import Parser
 
-# http://pythonforengineers.com/analysing-the-enron-email-corpus/
+# ham_rootdir = "C:\\Corpus\\Enron Ham\\beck-s"
+# ham_rootdir = "C:\\Corpus\\Enron Ham\\farmer-d"
+ham_rootdir = "C:\\Corpus\\Enron Ham\\kaminski-v"
 
-rootdir = "C:\\Corpus\\Enron Ham\\beck-s"
+spam_rootdir = ""
+def email_lebelling(email_labels,label):
+    email_labels.append(label)
 
+# Email Analuzer
 def email_analyse(inputfile, to_email_list, from_email_list, email_body):
     with open(inputfile, "r") as f:
         data = f.read()
 
     email = Parser().parsestr(data)
-
     to_email_list.append(email['to'])
     from_email_list.append(email['from'])
-
+    subject_email_list.append(email['subject'])
     email_body.append(email.get_payload())
 
 to_email_list = []
 from_email_list = []
+subject_email_list = []
 email_body = []
+email_label = []
 
-for directory, subdirectory, filenames in  os.walk(rootdir):
+# Get All ham mails in directory, Ham Label = 0
+for directory, subdirectory, filenames in  os.walk(ham_rootdir):
     for filename in filenames:
-        email_analyse(os.path.join(directory, filename), to_email_list, from_email_list, email_body )
+        email_analyse(os.path.join(directory, filename), to_email_list, from_email_list, email_body)
+        email_lebelling(email_label,0)
 
-# with open("to_email_list.txt", "w") as f:
-#     for to_email in to_email_list:
-#         if to_email:
-#             f.write(to_email)
-#             f.write("\n")
-#
-# with open("from_email_list.txt", "w") as f:
-#     for from_email in from_email_list:
-#         if from_email:
-#             f.write(from_email)
-#             f.write("\n")
-#
-# with open("email_body.txt", "w") as f:
-#     for email_bod in email_body:
-#         if email_bod:
-#             f.write(email_bod)
-#             f.write("\n")
+# Get All spam mails in directory, Ham Label = 1
+for spam_directory, spam_subdirectory, filenames in  os.walk(spam_rootdir):
+    for filename in filenames:
+        email_analyse(os.path.join(spam_directory, filename), to_email_list, from_email_list, email_body)
+        email_lebelling(email_label,1)

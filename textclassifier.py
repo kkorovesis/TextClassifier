@@ -13,3 +13,37 @@
 # or using a cross-validation (slide 25) on the training data. Document clearly in a short report (max. 10 pages)
 # how your system works and its experimental results.
 
+import nltk ,re
+from enronparse import email_body,email_label
+from tools import remove_punc
+from nltk.stem.snowball import SnowballStemmer
+
+stopwords = nltk.corpus.stopwords.words('english')
+stemmer = SnowballStemmer("english")
+
+def email_process_and_tokenize(text):
+    text_rm_p = remove_punc(text)
+    tokens = [word.lower() for sent in nltk.sent_tokenize(text_rm_p) for word in nltk.word_tokenize(sent)]
+    tokens_rm_sw = [word for word in tokens if word not in stopwords]
+    filtered_tokens = []
+    for token in tokens_rm_sw:
+        if re.search('[a-z]', token):
+            filtered_tokens.append(token)
+    stems = [stemmer.stem(t) for t in filtered_tokens]
+    return stems
+
+final_tokenized_email_list =[]
+
+for mail in email_body:
+    final_tokenized_email_list.append(email_process_and_tokenize(mail))
+
+print(email_body[2])
+print("\n","********************************************")
+print(final_tokenized_email_list[2])
+print("Number of tokens",len(final_tokenized_email_list[2]))
+print(email_label[2])
+
+
+
+
+
