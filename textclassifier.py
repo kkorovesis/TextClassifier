@@ -17,11 +17,26 @@ import nltk ,re
 from enronparse import email_body,email_label
 from tools import remove_punc
 from nltk.stem.snowball import SnowballStemmer
+def createVocabulary(list_of_tokens):
 
-stopwords = nltk.corpus.stopwords.words('english')
-stemmer = SnowballStemmer("english")
+    Unset_Vocabulary = []
+    for list in list_of_tokens:
+        for token in list:
+            Unset_Vocabulary.append(token)
+    V = set(Unset_Vocabulary)
+    f = open(r'output_files\Vocabulary', 'w')
+    for word in V:
+        f.write(str(word) + ",")
+
+
+def calculateUnigramProbLS(unigram, tokenized_corpus,  V):
+    return (tokenized_corpus.count(unigram) + 1)/(len(tokenized_corpus) + V)
 
 def email_process_and_tokenize(text):
+
+    stopwords = nltk.corpus.stopwords.words('english')
+    stemmer = SnowballStemmer("english")
+
     text_rm_p = remove_punc(text)
     tokens = [word.lower() for sent in nltk.sent_tokenize(text_rm_p) for word in nltk.word_tokenize(sent)]
     tokens_rm_sw = [word for word in tokens if word not in stopwords]
@@ -32,16 +47,30 @@ def email_process_and_tokenize(text):
     stems = [stemmer.stem(t) for t in filtered_tokens]
     return stems
 
+# Term Freq *******************************
+# for list in final_tokenized_email_list:
+#     count = {}
+#     for word in list:
+#         try:
+#             count[word] += 1
+#         except KeyError:
+#             count[word] = 1
+#     print(count.values())
+
+
 final_tokenized_email_list =[]
 
 for mail in email_body:
     final_tokenized_email_list.append(email_process_and_tokenize(mail))
 
-print(email_body[2])
-print("\n","********************************************")
-print(final_tokenized_email_list[2])
-print("Number of tokens",len(final_tokenized_email_list[2]))
-print(email_label[2])
+createVocabulary(final_tokenized_email_list)
+
+
+
+
+
+
+
 
 
 

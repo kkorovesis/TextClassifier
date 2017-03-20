@@ -1,9 +1,9 @@
 import os
 from email.parser import Parser
 
-# ham_rootdir = "C:\\Corpus\\Enron Ham\\beck-s"
+ham_rootdir = "C:\\Corpus\\Enron Ham"
 # ham_rootdir = "C:\\Corpus\\Enron Ham\\farmer-d"
-ham_rootdir = "C:\\Corpus\\Enron Ham\\kaminski-v"
+# ham_rootdir = "C:\\Corpus\\Enron Ham\\kaminski-v\\azurix_azurix"
 
 spam_rootdir = ""
 def email_lebelling(email_labels,label):
