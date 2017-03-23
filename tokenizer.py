@@ -17,6 +17,10 @@ import nltk ,re
 from enronparse import email_body,email_label
 from tools import remove_punc
 from nltk.stem.snowball import SnowballStemmer
+
+def calculateUnigramProbLS(unigram, tokenized_corpus,  V):
+    return (tokenized_corpus.count(unigram) + 1)/(len(tokenized_corpus) + V)
+
 def createVocabulary(list_of_tokens):
 
     Unset_Vocabulary = []
@@ -27,10 +31,6 @@ def createVocabulary(list_of_tokens):
     f = open(r'output_files\Vocabulary', 'w')
     for word in V:
         f.write(str(word) + ",")
-
-
-def calculateUnigramProbLS(unigram, tokenized_corpus,  V):
-    return (tokenized_corpus.count(unigram) + 1)/(len(tokenized_corpus) + V)
 
 def email_process_and_tokenize(text):
 
@@ -46,6 +46,8 @@ def email_process_and_tokenize(text):
             filtered_tokens.append(token)
     stems = [stemmer.stem(t) for t in filtered_tokens]
     return stems
+
+################################################### MAIN SCRIPT ###################################################
 
 # Term Freq *******************************
 # for list in final_tokenized_email_list:
@@ -63,8 +65,18 @@ final_tokenized_email_list =[]
 for mail in email_body:
     final_tokenized_email_list.append(email_process_and_tokenize(mail))
 
-createVocabulary(final_tokenized_email_list)
 
+
+
+# createVocabulary(final_tokenized_email_list)
+
+# unigrams_probs = [0.0] * len(V)
+#
+# i = 0
+# for unigram in V:
+#     if unigram != "qwerty":
+#         unigrams_probs[i] = calculateUnigramProbLS(unigram, tokenized_corpus, len(V) - 1)
+#     i = i + 1
 
 
 
