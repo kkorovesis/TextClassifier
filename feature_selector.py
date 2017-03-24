@@ -17,20 +17,24 @@ import nltk ,re
 from enronparse import email_body,email_label
 from tools import remove_punc
 from nltk.stem.snowball import SnowballStemmer
+from collections import Counter
 
-def calculateUnigramProbLS(unigram, tokenized_corpus,  V):
-    return (tokenized_corpus.count(unigram) + 1)/(len(tokenized_corpus) + V)
+# def write_unigram_probs(uprobs,V):
+#
+#     f = open(r'output_files\unigram_probs', 'w')
+#     i = 0
+#     for u in uprobs:
+#         f.write("P(" + (V[i]) + ") = " + str(u[i]) + "\n")
+#         i = + 1
 
-def createVocabulary(list_of_tokens):
+def writeVocabulary(V):
 
-    Unset_Vocabulary = []
-    for list in list_of_tokens:
-        for token in list:
-            Unset_Vocabulary.append(token)
-    V = set(Unset_Vocabulary)
     f = open(r'output_files\Vocabulary', 'w')
     for word in V:
         f.write(str(word) + ",")
+
+def calculateUnigramProbLS(unigram,unset_V,  V):
+    return (unset_V.count(unigram) + 1)/(len(unset_V) + V)
 
 def email_process_and_tokenize(text):
 
@@ -47,41 +51,46 @@ def email_process_and_tokenize(text):
     stems = [stemmer.stem(t) for t in filtered_tokens]
     return stems
 
+def remove_rare(tokens, n):
+    temp_counter = Counter(tokens)
+    ts = [word for word in tokens if temp_counter[word] >= n]
+    return ts
 ################################################### MAIN SCRIPT ###################################################
 
-# Term Freq *******************************
-# for list in final_tokenized_email_list:
-#     count = {}
-#     for word in list:
-#         try:
-#             count[word] += 1
-#         except KeyError:
-#             count[word] = 1
-#     print(count.values())
 
-
-final_tokenized_email_list =[]
+final_token_list =[]
 
 for mail in email_body:
-    final_tokenized_email_list.append(email_process_and_tokenize(mail))
+    final_token_list.append(email_process_and_tokenize(mail))
+
+# print(len(token_list))
+
+all_unset_Vocabulary = []
+
+for list in final_token_list:
+    for token in list:
+        all_unset_Vocabulary.append(token)
+
+unset_vocabulary = remove_rare(all_unset_Vocabulary,4)
+V = sorted(set(unset_vocabulary))
+# writeVocabulary(V)
+unigram_probs = [0.0] * len(V)
+
+i = 0
+for unigram in V:
+    unigram_probs[i] = calculateUnigramProbLS(unigram, unset_vocabulary, len(V) - 4)
+    i = i + 1
 
 
+f = open(r'output_files\unigram_probs', 'w')
+i = 0
+for unigram in V:
+    f.write("P(" + (V[i]) + ") = " + str(unigram_probs[i]) + "\n")
+    i = i + 1
+f.close()
 
 
-# createVocabulary(final_tokenized_email_list)
-
-# unigrams_probs = [0.0] * len(V)
-#
-# i = 0
-# for unigram in V:
-#     if unigram != "qwerty":
-#         unigrams_probs[i] = calculateUnigramProbLS(unigram, tokenized_corpus, len(V) - 1)
-#     i = i + 1
-
-
-
-
-
+# write_unigram_probs(unigrams_probs,V)
 
 
 
