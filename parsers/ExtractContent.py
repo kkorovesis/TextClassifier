@@ -6,6 +6,7 @@
 
 import email.parser 
 import os, sys, stat, codecs
+from os import _exit
 import shutil
 
 srcdir="C:\\Corpus\\CSDMC2010_SPAM\\TRAINING"
@@ -19,7 +20,7 @@ def ExtractSubPayload (filename):
     '''
     if not os.path.exists(filename): # dest path doesnot exist
         print ("ERROR: input file does not exist:", filename)
-        os.exit(1)
+        _exit(1)
     fp = codecs.open(filename, mode='r', encoding='utf-8', errors='ignore')
     msg = email.message_from_file(fp)
     payload = msg.get_payload()
@@ -66,7 +67,6 @@ def search(dict, name):
 
 ###################################################################
 # main function start here
-# srcdir is the directory where the .eml are stored
 
 dict_label = {}
 with open(label_dir) as f:
@@ -74,7 +74,5 @@ with open(label_dir) as f:
        (val, key) = line.split()
        dict_label[key] = int(val)
 
-
-###################################################################
 ExtractBodyFromDir ( srcdir, hamdstdir, spamdstdir, dict_label)
 

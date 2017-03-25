@@ -13,15 +13,25 @@
 # or using a cross-validation (slide 25) on the training data. Document clearly in a short report (max. 10 pages)
 # how your system works and its experimental results.
 
-import nltk ,re
-from enronparse import email_body,email_label
-from tools import remove_punc
-from nltk.stem.snowball import SnowballStemmer
+import time
 from collections import Counter
+
+import math
+import nltk
+import re
+from nltk.stem.snowball import SnowballStemmer
+
+from parsers.ListBuilder import email_body, email_label
+from parsers.ListBuilder import  spam_email_body
+from tools import remove_punc
+
+start_time = time.time()
+
+print("--- %s seconds ---" % (time.time() - start_time))
 
 # def write_unigram_probs(uprobs,V):
 #
-#     f = open(r'output_files\unigram_probs', 'w')
+#     f = open(r'output_files\unigram_probs', 'w', encoding='utf-8')
 #     i = 0
 #     for u in uprobs:
 #         f.write("P(" + (V[i]) + ") = " + str(u[i]) + "\n")
@@ -29,12 +39,24 @@ from collections import Counter
 
 def writeVocabulary(V):
 
-    f = open(r'output_files\Vocabulary', 'w')
+    f = open(r'output_files\Vocabulary', 'w', encoding='utf-8')
     for word in V:
+        f.write(str(word) + ",")
+
+def writespamVocabulary(sV):
+
+    f = open(r'output_files\SpamVocabulary', 'w', encoding='utf-8')
+    for word in sV:
         f.write(str(word) + ",")
 
 def calculateUnigramProbLS(unigram,unset_V,  V):
     return (unset_V.count(unigram) + 1)/(len(unset_V) + V)
+
+def calculateEntropy(probs):
+    entropy = 0.0
+    for prob in probs:
+        entropy -= prob * math.log(prob,2)
+    return entropy
 
 def email_process_and_tokenize(text):
 
@@ -54,46 +76,77 @@ def email_process_and_tokenize(text):
 def remove_rare(tokens, n):
     temp_counter = Counter(tokens)
     ts = [word for word in tokens if temp_counter[word] >= n]
+    # ts = ' '.join(ts)
     return ts
 ################################################### MAIN SCRIPT ###################################################
 
 
 final_token_list =[]
+final_token_spam_list=[]
 
 for mail in email_body:
     final_token_list.append(email_process_and_tokenize(mail))
 
-# print(len(token_list))
+for mail in spam_email_body:
+    final_token_spam_list.append(email_process_and_tokenize(mail))
 
 all_unset_Vocabulary = []
+all_unset_spam_Vocabulary = []
 
 for list in final_token_list:
     for token in list:
         all_unset_Vocabulary.append(token)
 
-unset_vocabulary = remove_rare(all_unset_Vocabulary,4)
-V = sorted(set(unset_vocabulary))
-# writeVocabulary(V)
-unigram_probs = [0.0] * len(V)
+for list in final_token_spam_list:
+    for token in list:
+        all_unset_spam_Vocabulary.append(token)
 
+unset_vocabulary = remove_rare(all_unset_Vocabulary,4)
+unset_spam_vocabulary = remove_rare(all_unset_spam_Vocabulary,4)
+
+V = sorted(set(unset_vocabulary))
+writeVocabulary(V)
+
+sV = sorted(set(unset_spam_vocabulary))
+writespamVocabulary(sV)
+
+##########################################################################################
+unigram_probs = [0.0] * len(V)
 i = 0
 for unigram in V:
     unigram_probs[i] = calculateUnigramProbLS(unigram, unset_vocabulary, len(V) - 4)
     i = i + 1
-
-
-f = open(r'output_files\unigram_probs', 'w')
+f = open(r'output_files\unigram_probs', 'w', encoding='utf-8')
 i = 0
 for unigram in V:
     f.write("P(" + (V[i]) + ") = " + str(unigram_probs[i]) + "\n")
     i = i + 1
 f.close()
+##########################################################################################
+spam_unigram_probs = [0.0] * len(sV)
+i = 0
+for unigram in sV:
+    spam_unigram_probs[i] = calculateUnigramProbLS(unigram, unset_spam_vocabulary, len(sV) - 4)
+    i = i + 1
+f = open(r'output_files\spam_unigram_probs', 'w', encoding='utf-8')
+i = 0
+for unigram in sV:
+    f.write("P(" + (sV[i]) + ") = " + str(spam_unigram_probs[i]) + "\n")
+    i = i + 1
+f.close()
+##########################################################################################
 
+print('############# HAM ##################')
+print('Ham entropy : ' + str(calculateEntropy(unigram_probs)))
+print('###############################'+'\n')
 
-# write_unigram_probs(unigrams_probs,V)
+print('############## SPAM ################')
+print('Spam entropy : ' + str(calculateEntropy(spam_unigram_probs)))
+print('###############################'+'\n')
 
-
-
+print('############## TIME ################')
+print("--- %s seconds ---" % (time.time() - start_time))
+print('###############################'+'\n')
 
 
 

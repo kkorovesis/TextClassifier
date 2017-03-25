@@ -1,7 +1,7 @@
 import os
 from email.parser import Parser
 
-spam_directory = "C:\\Corpus\\Enron Spam\\SH\\HP"
+spam_directory = "C:\Corpus\CSDMC2010_SPAM\TRAINING_SPAM"
 # spam_rootdir = "C:\\Corpus\\Enron Spam"
 
 spam_rootdir = ""
