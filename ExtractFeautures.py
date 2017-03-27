@@ -7,10 +7,16 @@ import numpy as np
 
 
 ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
-ham_test = "C:\Corpus\CSDMC2010_SPAM\SMALL_TRAINNING_HAM"
+ham_test = "C:\Corpus\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM"
 spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
 
-tokenize = lambda doc: doc.lower().split(" ")
+# tokenize = lambda doc: doc.lower().split(" ")
+
+def writeFeatures(tfidf_results):
+
+    f = open(r'output_files\features', 'w', encoding='utf-8')
+    for mail_features in tfidf_results:
+        f.write(str(mail_features) + "\n")
 
 def extractBody(filename):
     if not os.path.exists(filename): # dest path doesnot exist
@@ -60,14 +66,17 @@ def term_freq(term, tokenized_document):
 def tf_idf(list_of_docs):
     tokenized_documents = []
     for doc in list_of_docs:
-        tokenized_documents.append(tokenize(doc))
+        tokenized_documents.append(word_tokenize(doc))
     idf = inv_doc_freq(tokenized_documents)
     tfidf_documents = []
     for document in tokenized_documents:
         doc_tfidf = []
         for term in idf.keys():
             tf = term_freq(term, document)
-            doc_tfidf.append(tf*idf[term])
+            term_tfidf = tf*idf[term]
+            term_tfidf = float("{0:.2f}".format(term_tfidf))
+            doc_tfidf.append(term_tfidf)
+
         tfidf_documents.append(doc_tfidf)
     return tfidf_documents
 
@@ -78,11 +87,11 @@ print("--- %s seconds ---" % (time.time() - start_time), "\n")
 
 list_of_docs = []
 tokenized_docs = []
-files = os.listdir(ham_dir)
+files = os.listdir(ham_test)
 
 '''CREATE LIST OF DOCUMENTS'''
 for file in files:
-    srcpath = os.path.join(ham_dir, file)
+    srcpath = os.path.join(ham_test, file)
     body_text = extractBody(srcpath)
     list_of_docs.append(body_text)
 
@@ -95,7 +104,7 @@ for file in files:
 
 
 ######################################################################################
-'''TERM FREQUENCY WIT COUNTVECTORIZER'''
+'''TERM FREQUENCY WITH COUNTVECTORIZER'''
 
 # tf = CountVectorizer( min_df=0, tokenizer=word_tokenize, max_features=200)
 #
@@ -110,7 +119,10 @@ for file in files:
 
 
 tfidf_results = tf_idf(list_of_docs)
-print(tfidf_results)
+writeFeatures(tfidf_results)
+
+
+
 
 print('############## TIME ################')
 print("--- %s seconds ---" % (time.time() - start_time))
