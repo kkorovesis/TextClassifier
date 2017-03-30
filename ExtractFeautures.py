@@ -8,20 +8,21 @@ np.set_printoptions(threshold=np.inf)
 
 
 ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
-ham_test = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM_ONE"
+ham_test = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM"
 spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
 
 # tokenize = lambda doc: doc.lower().split(" ")
 
 def writeAnything(things):
 
-    f = open(r'output_files\things3', 'w', encoding='utf-8')
+    f = open(r'output_files\things1', 'w', encoding='utf-8')
     for thing in things:
-        f.write(str(thing) + "\n")
+        for t in thing:
+            f.write(str(t) + "\n")
 
 def writeFeatures(tfidf_results):
 
-    f = open(r'output_files\features', 'w', encoding='utf-8')
+    f = open(r'output_files\features3', 'w', encoding='utf-8')
     for mail_features in tfidf_results:
         f.write(str(mail_features) + "\n")
 
@@ -65,9 +66,10 @@ def word_tokenize(text):
 def inv_doc_freq(tokenized_documents):
     idf_values = {}
     all_tokens_set = set([item for sublist in tokenized_documents for item in sublist])
-    for tkn in all_tokens_set:
-        contains_token = map(lambda doc: tkn in doc, tokenized_documents)
-        idf_values[tkn] = 1 + math.log(len(tokenized_documents)/(sum(contains_token)))
+    all_tokens = [item for sublist in tokenized_documents for item in sublist]
+    for token in all_tokens:
+        contains_token = map(lambda doc: token in doc, tokenized_documents)
+        idf_values[token] = 1 + math.log(len(tokenized_documents)/(sum(contains_token)))
     return idf_values
 
 def term_freq(term, tokenized_document):
@@ -83,6 +85,22 @@ def tf_idf(list_of_docs):
     idf = inv_doc_freq(tokenized_documents)
     tfidf_documents = []
     for document in tokenized_documents:
+        doc_tfidf = {}
+        for term in idf.keys():
+            tf = term_freq(term, document)
+            # term_tfidf = float("{0:.2f}".format(tf*idf[term]))
+            term_tfidf = map(lambda doc: float("{0:.2f}".format(tf*idf[term])) in doc, document)
+            doc_tfidf[term] = term_tfidf
+        tfidf_documents.append(doc_tfidf)
+    return tfidf_documents
+
+def tf_idf_list(list_of_docs):
+    tokenized_documents = []
+    for doc in list_of_docs:
+        tokenized_documents.append(word_tokenize(doc))
+    idf = inv_doc_freq(tokenized_documents)
+    tfidf_documents = []
+    for document in tokenized_documents:
         doc_tfidf = []
         for term in idf.keys():
             tf = term_freq(term, document)
@@ -91,6 +109,7 @@ def tf_idf(list_of_docs):
             doc_tfidf.append(term_tfidf)
         tfidf_documents.append(doc_tfidf)
     return tfidf_documents
+
 
 
 ########################################## MAIN ##########################################
@@ -111,14 +130,6 @@ for file in files:
 tokenized_documents = []
 for doc in list_of_docs:
     tokenized_documents.append(word_tokenize(doc))
-
-idf_list = inv_doc_freq(tokenized_docs)
-
-writeAnything(idf_list)
-
-
-
-
 
 # '''CREATE LIST OF LISTS OF TOKENS'''
 # for file in files:
@@ -141,30 +152,33 @@ writeAnything(idf_list)
 #     exit()
 ######################################################################################
 
-tfidf_results = tf_idf(list_of_docs)
+tfidf_results = tf_idf_list(list_of_docs)
+# tfidf_results_dict = tf_idf_dict(list_of_docs)
+
+
 # for tfidf in tfidf_results:
 #     print("Number of features = ", len(tfidf))
 
-writeAnything(tfidf_results)
+# writeAnything(tfidf_results)
+# writeFeatures(tfidf_results)
+
 
 list_sum=([float("{0:.2f}".format(sum(x))) for x in zip(*tfidf_results)])
-
+#
 array_sum = np.array(list_sum)
 
-# writeFeatures(tfidf_results)
+
 
 # print("Number of features in sum= ", len(array_sum))
 # print(array_sum)
 # print([i[0] for  i in (enumerate(array_sum))])
 # print([i[0] for i in sorted(enumerate(list_sum), key=lambda x:x[1])])
 # print(sorted(range(len(array_sum)),key=lambda x:array_sum[x]))
-# print(sorted((e,i) for i,e in enumerate(array_sum)))
+print(sorted((e,i) for i,e in enumerate(array_sum)))
 #
 # for i,e in enumerate(array_sum):
 #     enum_sorted = sorted((e,i),reverse=True)
-#
-#
-# print(enum_sorted)
+#     print(enum_sorted)
 
 
 
