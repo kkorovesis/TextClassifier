@@ -59,10 +59,10 @@ def ExtractBodyFromDir(srcdir, hamstpath, spamdstpath, dictlabel):
             dstfile.close()
     print("Found:",ham_counter," Ham mails"," and ",spam_counter, " Spam mails")
 
-def search(dict, name):
-    for key, value in dict.items():
-        if name == key:
-            return value
+def search(diction, name):
+    for k, v in diction.items():
+        if name == k:
+            return v
     return None
 
 ###################################################################
