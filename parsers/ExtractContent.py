@@ -9,9 +9,14 @@ import os, sys, stat, codecs
 from os import _exit
 import shutil
 
-srcdir="C:\\Corpus\\CSDMC2010_SPAM\\TRAINING"
-hamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
-spamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
+trainsrcdir="C:\\Corpus\\CSDMC2010_SPAM\\TRAINING"
+trainhamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
+trainspamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
+
+testsrcdir="C:\\Corpus\\CSDMC2010_SPAM\\TESTING"
+testhamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_HAM"
+testspamdstdir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_SPAM"
+
 label_dir = "C:\\Corpus\\CSDMC2010_SPAM\\SPAMTrain.label"
 
 def ExtractSubPayload (filename):
@@ -46,14 +51,14 @@ def ExtractBodyFromDir(srcdir, hamstpath, spamdstpath, dictlabel):
         if filelabel == 1:
             ham_counter +=1
             body = ExtractSubPayload(srcpath)
-            dstpath = os.path.join(hamdstdir, file)
+            dstpath = os.path.join(hamstpath, file)
             dstfile = open(dstpath, 'w', encoding='utf-8')
             dstfile.write(body)
             dstfile.close()
         elif filelabel == 0:
             spam_counter +=1
             body = ExtractSubPayload(srcpath)
-            dstpath = os.path.join(spamdstdir, file)
+            dstpath = os.path.join(spamdstpath, file)
             dstfile = open(dstpath, 'w', encoding='utf-8')
             dstfile.write(body)
             dstfile.close()
@@ -74,5 +79,9 @@ with open(label_dir) as f:
        (val, key) = line.split()
        dict_label[key] = int(val)
 
-ExtractBodyFromDir ( srcdir, hamdstdir, spamdstdir, dict_label)
+ExtractBodyFromDir ( trainsrcdir, trainhamdstdir, trainspamdstdir, dict_label)
 
+ExtractBodyFromDir ( testsrcdir, testhamdstdir, testspamdstdir, dict_label)
+
+# Found: 2224  Ham mails  and  1022  Spam mails
+# Found: 725  Ham mails  and  356  Spam mails

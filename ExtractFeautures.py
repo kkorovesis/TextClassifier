@@ -1,7 +1,6 @@
-import nltk, math , re, time, os, codecs, email.parser, itertools, operator, sys
+import nltk, math , re, time, os, codecs, email.parser, operator, sys, pickle
 from nltk.stem.snowball import SnowballStemmer
 from tools import remove_punc
-from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from collections import Counter
 import numpy as np
 np.set_printoptions(threshold=np.inf)
@@ -9,9 +8,14 @@ np.set_printoptions(threshold=np.inf)
 
 ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
 spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
+test_ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_HAM"
+test_spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_SPAM"
 
-ham_test = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM"
-spam_test = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_SPAM"
+
+ham_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM"
+spam_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_SPAM"
+test_ham_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TESTING_HAM"
+test_spam_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TESTING_SPAM"
 
 # tokenize = lambda doc: doc.lower().split(" ")
 
@@ -81,20 +85,20 @@ def term_freq(term, tokenized_document): # calculates the term frequency
         return 0
     return 1 + count
 
-def tf_idf(list_of_docs): # returns a dictionary term : tf-idf score of all docs
-    tokenized_documents = []
-    for doc in list_of_docs:
-        tokenized_documents.append(word_tokenize(doc))
-    idf = inv_doc_freq(tokenized_documents)
-    tfidf_documents = []
-    for document in tokenized_documents:
-        doc_tfidf = {}
-        for term in idf.keys():
-            tf = term_freq(term, document)
-            term_tfidf = float("{0:.2f}".format(tf*idf[term]))
-            doc_tfidf[term] = term_tfidf
-        tfidf_documents.append(doc_tfidf)
-    return tfidf_documents
+# def tf_idf(list_of_docs): # returns a dictionary term : tf-idf score of all docs
+#     tokenized_documents = []
+#     for doc in list_of_docs:
+#         tokenized_documents.append(word_tokenize(doc))
+#     idf = inv_doc_freq(tokenized_documents)
+#     tfidf_documents = []
+#     for document in tokenized_documents:
+#         doc_tfidf = {}
+#         for term in idf.keys():
+#             tf = term_freq(term, document)
+#             term_tfidf = float("{0:.2f}".format(tf*idf[term]))
+#             doc_tfidf[term] = term_tfidf
+#         tfidf_documents.append(doc_tfidf)
+#     return tfidf_documents
 
 def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
     tokenized_documents = []
@@ -105,7 +109,7 @@ def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
         print("no data to process")
         sys.exit()
     tfidf_documents = []
-    names = feature_selection(idf, 100)
+    names = feature_selection(idf, 200)
     for document in tokenized_documents:
         doc_tfidf = []
         for term in names:
@@ -113,136 +117,103 @@ def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
             term_tfidf = float("{0:.2f}".format(tf*idf[term]))
             doc_tfidf.append(term_tfidf)
         tfidf_documents.append(doc_tfidf)
-    return tfidf_documents,names
+    return tfidf_documents,names,idf
+
+def tf_idf_list_testing(list_of_docs,idf,names):
+    tokenized_documents = []
+    for doc in list_of_docs:
+        tokenized_documents.append(word_tokenize(doc))
+    if not tokenized_documents:
+        print("no data to process")
+        sys.exit()
+    tfidf_documents = []
+    for document in tokenized_documents:
+        doc_tfidf = []
+        for term in names:
+            tf = term_freq(term, document)
+            term_tfidf = float("{0:.2f}".format(tf * idf[term]))
+            doc_tfidf.append(term_tfidf)
+        tfidf_documents.append(doc_tfidf)
+    return tfidf_documents
+
 
 
 def feature_selection(idf,max_feautures):
     sorted_x = sorted(idf.items(), key=operator.itemgetter(1), reverse=True)
     return [y[0] for y in sorted_x][:max_feautures]
 
+def load_data():
+    ######################################################################################
+    '''CREATE THE TRAIN FEATURES'''
+    list_of_ham_docs = []
+    ham_labels = []
+    list_of_spam_docs = []
+    spam_labels = []
 
-# def reduce_features(features,nof): # returns the list of features with the highest tf_idf score of all docs
-#
-#     sum_list = ([float("{0:.2f}".format(sum(x))) for x in zip(*features)])
-#     enum_sorted = (sorted((e, i) for i, e in enumerate(sum_list)))
-#     first_enum_sorted = enum_sorted[-nof:]
-#     best_features = [i for e, i in first_enum_sorted]
-#
-#     doc_best_features = []
-#     for doc in features:
-#         doc = [doc[i] for i in best_features]
-#         doc_best_features.append(doc)
-#
-#     return doc_best_features
+    ham_files = os.listdir(ham_small)
+    spam_files = os.listdir(spam_small)
 
+    # ham_files = os.listdir(ham_dir)
+    # spam_files = os.listdir(spam_dir)
 
+    '''CREATE LIST OF DOCUMENTS'''
+    for file in ham_files:
+        srcpath = os.path.join(ham_small, file)
+        body_text = extractBody(srcpath)
+        list_of_ham_docs.append(body_text)
+        ham_labels.append(1)
+        number_of_hams = len(list_of_ham_docs)
+    print("Number of Hams: ", number_of_hams)
 
-########################################## MAIN ##########################################
-start_time = time.time()
-print("--- %s seconds ---" % (time.time() - start_time), "\n")
+    for file in spam_files:
+        srcpath = os.path.join(spam_small, file)
+        body_text = extractBody(srcpath)
+        list_of_spam_docs.append(body_text)
+        spam_labels.append(0)
+        number_of_spams = len(list_of_spam_docs)
+    print("Number of Spams: ", number_of_spams)
 
+    list_of_docs = list_of_ham_docs + list_of_spam_docs
 
-list_of_ham_docs = []
-ham_labels = []
-list_of_spam_docs = []
-spam_labels = []
+    print("Number of Docs: ", len(list_of_docs))
+    labels_of_docs = ham_labels + spam_labels
+    print("Number of Labels: ", len(labels_of_docs))
+    ######################################################################################
 
-ham_files = os.listdir(ham_test)
-spam_files = os.listdir(spam_test)
+    ######################################################################################
+    '''CREATE THE TEST FEATURES'''
+    test_list_of_ham_docs = []
+    test_ham_labels = []
+    test_list_of_spam_docs = []
+    test_spam_labels = []
 
-'''CREATE LIST OF DOCUMENTS'''
-for file in ham_files:
-    srcpath = os.path.join(ham_test, file)
-    body_text = extractBody(srcpath)
-    list_of_ham_docs.append(body_text)
-    ham_labels.append(1)
-    number_of_hams = len(list_of_ham_docs)
-print("Number of Hams: ",number_of_hams)
+    test_ham_files = os.listdir(test_ham_small)
+    test_spam_files = os.listdir(test_spam_small)
 
-for file in spam_files:
-    srcpath = os.path.join(spam_test, file)
-    body_text = extractBody(srcpath)
-    list_of_spam_docs.append(body_text)
-    spam_labels.append(0)
-    number_of_spams = len(list_of_spam_docs)
-print("Number of Spams: ",number_of_spams)
+    # test_ham_files = os.listdir(test_ham_dir)
+    # test_spam_files = os.listdir(test_spam_dir)
 
-list_of_docs = list_of_ham_docs + list_of_spam_docs
-print("Number of Docs: ",len(list_of_docs))
-labels_of_docs = ham_labels + spam_labels
-print("Number of Labels: ",len(labels_of_docs))
+    '''CREATE LIST OF DOCUMENTS'''
+    for file in test_ham_files:
+        test_srcpath = os.path.join(test_ham_small, file)
+        test_body_text = extractBody(test_srcpath)
+        test_list_of_ham_docs.append(test_body_text)
+        test_ham_labels.append(1)
+        test_number_of_hams = len(test_list_of_ham_docs)
+    print("Number of Test Hams: ", test_number_of_hams)
 
+    for file in test_spam_files:
+        test_srcpath = os.path.join(test_spam_small, file)
+        test_body_text = extractBody(test_srcpath)
+        test_list_of_spam_docs.append(test_body_text)
+        test_spam_labels.append(0)
+        test_number_of_spams = len(test_list_of_spam_docs)
+    print("Number of Test  Spams: ", test_number_of_spams)
 
-# tokenized_documents = []
-# for doc in list_of_docs:
-#     tokenized_documents.append(word_tokenize(doc))
+    test_list_of_docs = test_list_of_ham_docs + test_list_of_spam_docs
+    print("Number of Test Docs: ", len(test_list_of_docs))
+    test_labels_of_docs = test_ham_labels + test_spam_labels
+    print("Number of Test Labels: ", len(test_labels_of_docs))
 
-######################################################################################
-'''TERM FREQUENCY WITH COUNTVECTORIZER'''
+    return list_of_docs,test_list_of_docs,labels_of_docs,test_labels_of_docs
 
-# tf = CountVectorizer( min_df=0, tokenizer=word_tokenize, max_features=200)
-#
-# results = tf.fit_transform(list_of_docs).toarray()
-# names = tf.get_feature_names()
-#
-# for record in results:
-#     for n,r in zip(names,record):
-#         print(n,r)
-#     exit()
-######################################################################################
-
-feature_matrix,feature_names = tf_idf_list(list_of_docs)
-######################################################################################
-# ''' REDUCED FEATURES USING LISTS '''
-
-# for doc in tfidf_results:
-#     n = int(math.ceil(len(doc)/3))
-#
-# tfidf_reduced = reduce_features(tfidf_results,n)
-#
-# for doc in tfidf_results:
-#     print("Number of features : ", len(doc))
-#     print(doc)
-#
-# for doc in tfidf_reduced:
-#     print("Number of features : ", len(doc))
-#     print(doc)
-######################################################################################
-
-
-for vector in feature_matrix:
-    for a,b in zip(vector,feature_names):
-        print(b,":",a)
-
-
-
-
-
-
-# sum_list = ([float("{0:.2f}".format(sum(x))) for x in zip(*tfidf_results_dict)])
-# enum_sorted = (sorted((e, i) for i, e in enumerate(sum_list)))
-# first_enum_sorted = enum_sorted[-300:]
-# best_features = [i for e, i in first_enum_sorted]
-#
-# doc_best_features = []
-# for doc in tfidf_results_dict:
-#     doc = [doc[i] for i in best_features]
-#     print (doc)
-
-
-# for dict in tfidf_results_dict:
-#     for key,value in dict.items():
-#         print(key,value)
-
-
-# print("Number of features in sum= ", len(array_sum))
-# print(array_sum)
-# print([i[0] for  i in (enumerate(array_sum))])
-# print([i[0] for i in sorted(enumerate(list_sum), key=lambda x:x[1])])
-# print(sorted(range(len(array_sum)),key=lambda x:array_sum[x]))
-
-
-
-print('############## TIME ################')
-print("--- %s seconds ---" % (time.time() - start_time))
-print('###############################'+'\n')
