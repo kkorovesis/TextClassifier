@@ -11,7 +11,7 @@ lr = LogisticRegression(C=10)
 lr.fit(train_set,train_labels)
 
 predicted = lr.predict(test_set)
-print_metrics(test_labels,predicted,0)
+print_metrics(test_labels,predicted,1)
 
 # Found: 2224  Ham mails  and  1022  Spam mails
 # Found: 725  Ham mails  and  356  Spam mails

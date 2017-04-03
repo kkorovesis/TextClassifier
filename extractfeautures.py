@@ -109,7 +109,7 @@ def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
         print("no data to process")
         sys.exit()
     tfidf_documents = []
-    names = feature_selection(idf, 200)
+    names = feature_selection(idf, 5000)
     for document in tokenized_documents:
         doc_tfidf = []
         for term in names:
@@ -149,16 +149,17 @@ def load_data():
     ham_labels = []
     list_of_spam_docs = []
     spam_labels = []
+    #
+    # ham_files = os.listdir(ham_small)
+    # spam_files = os.listdir(spam_small)
 
-    ham_files = os.listdir(ham_small)
-    spam_files = os.listdir(spam_small)
-
-    # ham_files = os.listdir(ham_dir)
-    # spam_files = os.listdir(spam_dir)
+    ham_files = os.listdir(ham_dir)
+    spam_files = os.listdir(spam_dir)
 
     '''CREATE LIST OF DOCUMENTS'''
     for file in ham_files:
-        srcpath = os.path.join(ham_small, file)
+        # srcpath = os.path.join(ham_small, file)
+        srcpath = os.path.join(ham_dir, file)
         body_text = extractBody(srcpath)
         list_of_ham_docs.append(body_text)
         ham_labels.append(1)
@@ -166,7 +167,8 @@ def load_data():
     print("Number of Hams: ", number_of_hams)
 
     for file in spam_files:
-        srcpath = os.path.join(spam_small, file)
+        # srcpath = os.path.join(spam_small, file)
+        srcpath = os.path.join(spam_dir, file)
         body_text = extractBody(srcpath)
         list_of_spam_docs.append(body_text)
         spam_labels.append(0)
@@ -187,15 +189,16 @@ def load_data():
     test_list_of_spam_docs = []
     test_spam_labels = []
 
-    test_ham_files = os.listdir(test_ham_small)
-    test_spam_files = os.listdir(test_spam_small)
+    # test_ham_files = os.listdir(test_ham_small)
+    # test_spam_files = os.listdir(test_spam_small)
 
-    # test_ham_files = os.listdir(test_ham_dir)
-    # test_spam_files = os.listdir(test_spam_dir)
+    test_ham_files = os.listdir(test_ham_dir)
+    test_spam_files = os.listdir(test_spam_dir)
 
     '''CREATE LIST OF DOCUMENTS'''
     for file in test_ham_files:
-        test_srcpath = os.path.join(test_ham_small, file)
+        # test_srcpath = os.path.join(test_ham_small, file)
+        test_srcpath = os.path.join(test_ham_dir, file)
         test_body_text = extractBody(test_srcpath)
         test_list_of_ham_docs.append(test_body_text)
         test_ham_labels.append(1)
@@ -203,7 +206,8 @@ def load_data():
     print("Number of Test Hams: ", test_number_of_hams)
 
     for file in test_spam_files:
-        test_srcpath = os.path.join(test_spam_small, file)
+        # test_srcpath = os.path.join(test_spam_small, file)
+        test_srcpath = os.path.join(test_spam_dir, file)
         test_body_text = extractBody(test_srcpath)
         test_list_of_spam_docs.append(test_body_text)
         test_spam_labels.append(0)

@@ -1,7 +1,7 @@
 import time,  pickle
 import numpy as np
 np.set_printoptions(threshold=np.inf)
-from ExtractFeautures import load_data, tf_idf_list, tf_idf_list_testing
+from extractfeautures import load_data, tf_idf_list, tf_idf_list_testing
 
 ########################################## MAIN ##########################################
 start_time = time.time()
