@@ -1,0 +1,60 @@
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', max_iter=500 , solver='liblinear')
+
+Predicting Spam
+Precision:  0.83152173913
+Recall:  0.429775280899
+Accuracy:  0.783533765032
+F1:  0.566666666667
+Average Precision:  0.879804304067
+ROC:  0.693508330105
+
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', solver='newton-cg')
+
+Predicting Spam
+Precision:  0.875675675676
+Recall:  0.455056179775
+Accuracy:  0.799259944496
+F1:  0.598890942699
+Average Precision:  0.886517300335
+ROC:  0.711666020922
+
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', max_iter=100 , solver='sag')
+
+Predicting Spam
+Precision:  0.837209302326
+Recall:  0.505617977528
+Accuracy:  0.804810360777
+F1:  0.630472854641
+Average Precision:  0.890434154944
+ROC:  0.72867105773
+
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', max_iter=300 , solver='sag')
+
+Predicting Spam
+Precision:  0.85308056872
+Recall:  0.505617977528
+Accuracy:  0.808510638298
+F1:  0.634920634921
+Average Precision:  0.891809839761
+ROC:  0.731429678419
+
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', max_iter=500 , solver='sag')
+
+Predicting Spam
+Precision:  0.861244019139
+Recall:  0.505617977528
+Accuracy:  0.810360777058
+F1:  0.637168141593
+Average Precision:  0.89249607482
+ROC:  0.732808988764
+
+LogisticRegression(C=10, penalty='l2', class_weight='balanced', max_iter=750 , solver='sag')
+Predicting Spam
+Precision:  0.866028708134
+Recall:  0.508426966292
+Accuracy:  0.812210915819
+F1:  0.640707964602
+Average Precision:  0.893296589798
+ROC:  0.734903138318
+
+

@@ -85,22 +85,9 @@ def term_freq(term, tokenized_document): # calculates the term frequency
         return 0
     return 1 + count
 
-# def tf_idf(list_of_docs): # returns a dictionary term : tf-idf score of all docs
-#     tokenized_documents = []
-#     for doc in list_of_docs:
-#         tokenized_documents.append(word_tokenize(doc))
-#     idf = inv_doc_freq(tokenized_documents)
-#     tfidf_documents = []
-#     for document in tokenized_documents:
-#         doc_tfidf = {}
-#         for term in idf.keys():
-#             tf = term_freq(term, document)
-#             term_tfidf = float("{0:.2f}".format(tf*idf[term]))
-#             doc_tfidf[term] = term_tfidf
-#         tfidf_documents.append(doc_tfidf)
-#     return tfidf_documents
 
-def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
+
+def tf_idf(list_of_docs): # returns a list of the tf-idf scores of all docs
     tokenized_documents = []
     for doc in list_of_docs:
         tokenized_documents.append(word_tokenize(doc))
@@ -119,7 +106,7 @@ def tf_idf_list(list_of_docs): # returns a list of the tf-idf scores of all docs
         tfidf_documents.append(doc_tfidf)
     return tfidf_documents,names,idf
 
-def tf_idf_list_testing(list_of_docs,idf,names):
+def tf_idf_testing(list_of_docs,idf,names):
     tokenized_documents = []
     for doc in list_of_docs:
         tokenized_documents.append(word_tokenize(doc))
