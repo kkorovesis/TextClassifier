@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
-import time
-import  pickle
-from sklearn.linear_model import LogisticRegression
-from evaluation import print_metrics
+
 from scipy import interp
-import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.svm import SVC, LinearSVC
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import auc
 from sklearn.cross_validation import KFold
 from sklearn.linear_model import SGDClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -18,17 +13,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
-
-# Found: 2224  Ham mails  and  1022  Spam mails
-# Found: 725  Ham mails  and  356  Spam mails
-
-test_set = np.array(pickle.load( open( 'output_files\\feature_matrix_test.pkl', "rb" ) ))
-train_set = np.array(pickle.load( open( 'output_files\\feature_matrix_train.pkl', "rb" ) ))
-test_labels = np.array(pickle.load( open( 'output_files\\test_labels.pkl', "rb" ) ))
-train_labels = np.array(pickle.load( open( 'output_files\\train_labels.pkl', "rb" ) ))
-
-set = np.array(pickle.load( open( 'output_files\\feature_matrix.pkl', "rb" ) ))
-labels = np.array(pickle.load( open( 'output_files\\labels.pkl', "rb" ) ))
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
@@ -48,19 +34,22 @@ def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
         "Random Forests": RandomForestClassifier(n_estimators=350, max_features=20, max_leaf_nodes=600, n_jobs=n_jobs),
         "Logistic Regression L1": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
         "Logistic Regression L2": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
-        "Logistic Regression Stochastic Gradient Descent" : LogisticRegression(C=cost, penalty='l2',
-                                                                    class_weight='balanced',max_iter=500, solver='sag'),
+        "Logistic Regression Stochastic Gradient Descent": LogisticRegression(C=cost, penalty='l2',
+                                                                              class_weight='balanced', max_iter=500,
+                                                                              solver='sag'),
         "Decision Trees": DecisionTreeClassifier(min_samples_leaf=250),
         "SGD": SGDClassifier(alpha=.0001, n_iter=50, penalty="elasticnet", n_jobs=n_jobs),
     }
     return classifier_list[classifier_name]
 
-def plot_precision_recall(x, y, classifier_name, n_folds=10, n_jobs=4):
+
+def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
     """
     Plots Precision Recall Curves (evaluate classifiers)
     :param x: numpy array, required
     :param y: list, required
     :param classifier_name: string, required
+    :param costs: list, required
     :param n_folds: int, optional
     :param n_jobs: int, optional
     :return: Nothing. Generates a precision recall curve with matplotlib library
@@ -71,7 +60,7 @@ def plot_precision_recall(x, y, classifier_name, n_folds=10, n_jobs=4):
     kf = KFold(len(x), shuffle=True, n_folds=n_folds)
     for train_index, test_index in kf:
         train_set, test_set, train_labels, test_labels = x[train_index], x[test_index], y[train_index], y[test_index]
-        classifier = init_sklearn_classifier(classifier_name, n_jobs)
+        classifier = init_sklearn_classifier(classifier_name, cost, n_jobs)
         classifier.fit(train_set, train_labels)
         predicted_labels = classifier.predict(test_set)
 
@@ -87,7 +76,8 @@ def plot_precision_recall(x, y, classifier_name, n_folds=10, n_jobs=4):
     reversed_mean_precision[0] = 1.0
 
     mean_auc_pr = auc(mean_recall, reversed_mean_precision)
-    plt.plot(mean_recall, reversed_mean_precision, label='%s (area = %0.2f)' % (classifier_name, mean_auc_pr), lw=1)
+    plt.plot(mean_recall, reversed_mean_precision, label='%s C = %s (area = %0.2f)' %
+                                                         (classifier_name, cost, mean_auc_pr), lw=1)
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
     plt.xlabel('Recall')
@@ -97,18 +87,19 @@ def plot_precision_recall(x, y, classifier_name, n_folds=10, n_jobs=4):
     plt.show()
 
 
-def plot_learning_curve(x, y, classifier_name, n_folds=10, n_jobs=4):
+def plot_learning_curve(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
     """
     Plots Learning Curves (evaluate classifiers)
     :param x: numpy array, required
     :param y: list, required
     :param classifier_name: string, required
+    :param cost: float, optional
     :param n_folds: int, optional
     :param n_jobs: int, optional
     :return: Nothing. Generate a simple plot of the test and training learning curve.
     """
 
-    clf = init_sklearn_classifier(classifier_name, n_jobs)
+    clf = init_sklearn_classifier(classifier_name, cost, n_jobs)
 
     plt.figure()
     plt.title('Learning Curves : ' + classifier_name)
@@ -134,20 +125,3 @@ def plot_learning_curve(x, y, classifier_name, n_folds=10, n_jobs=4):
     plt.legend(loc="best")
 
     plt.show()
-
-
-########################################## MAIN ##########################################
-start_time = time.time()
-print("--- %s seconds ---" % (time.time() - start_time), "\n")
-
-
-plot_precision_recall(set,labels,"Logistic Regression Stochastic Gradient Descent")
-
-plot_learning_curve(set,labels,"Logistic Regression Stochastic Gradient Descent")
-
-
-print('############## TIME ################')
-print("--- %s seconds ---" % (time.time() - start_time))
-print('###############################'+'\n')
-
-

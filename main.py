@@ -1,7 +1,9 @@
-import time,  pickle
+import time,pickle
 import numpy as np
-np.set_printoptions(threshold=np.inf)
-from extractfeautures import load_data, tf_idf, tf_idf_testing
+from features import generate_features
+from evaluation import cross_validation, evaluate_testing
+from curves import plot_learning_curve,plot_precision_recall
+
 
 # Develop a text classifier for a kind of texts of your choice (e.g., e-mail messages, tweets, customer reviews) and at
 # least two classes (e.g., spam/ham, positive/negative/neutral).2 You should write your own code to convert each
@@ -21,38 +23,28 @@ from extractfeautures import load_data, tf_idf, tf_idf_testing
 # in a short report (max. 10 pages) how your system works and its experimental results.
 
 
+test_set = np.array(pickle.load( open( 'output_files\\feature_matrix_test.pkl', "rb" ) ))
+train_set = np.array(pickle.load( open( 'output_files\\feature_matrix_train.pkl', "rb" ) ))
+test_labels = np.array(pickle.load( open( 'output_files\\test_labels.pkl', "rb" ) ))
+train_labels = np.array(pickle.load( open( 'output_files\\train_labels.pkl', "rb" ) ))
+
 
 ########################################## MAIN ##########################################
 start_time = time.time()
 print("--- %s seconds ---" % (time.time() - start_time), "\n")
 
-list_of_docs, test_list_of_docs , train_labels, test_labels = load_data()
-train_feature_matrix,feature_names,idf = tf_idf(list_of_docs)
+# generate_features()
 
-test_feature_matrix = tf_idf_testing(test_list_of_docs,idf,feature_names)
+# print("Training evaluation \n")
+# cross_validation(train_set, train_labels, "Logistic Regression Stochastic Gradient Descent", n_folds=10, n_jobs=4,pos_label=0)
 
-# Concatenate the train and test matrix to create unique feature matrix to do cross-validation
+# print("Test Evaluation with Logistic Regression SGD \n")
+# evaluate_testing(train_set, train_labels ,test_set, test_labels, "Logistic Regression Stochastic Gradient Descent", pos_label=0)
+# print("Test Evaluation with Random Forests \n")
+# evaluate_testing(train_set, train_labels ,test_set, test_labels, "Random Forests", pos_label=0)
 
-feature_matrix = train_feature_matrix + test_feature_matrix
-labels = train_labels + test_labels
-
-with open('output_files\\feature_matrix_train.pkl', "wb") as fp:
-    pickle.dump(train_feature_matrix, fp)
-
-with open('output_files\\train_labels.pkl', "wb") as fp:
-    pickle.dump(train_labels, fp)
-
-with open('output_files\\feature_matrix_test.pkl', "wb") as fp:
-    pickle.dump(test_feature_matrix, fp)
-
-with open('output_files\\test_labels.pkl', "wb") as fp:
-    pickle.dump(test_labels, fp)
-
-with open('output_files\\feature_matrix.pkl', "wb") as fp:
-    pickle.dump(feature_matrix, fp)
-
-with open('output_files\\labels.pkl', "wb") as fp:
-    pickle.dump(labels, fp)
+plot_precision_recall(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
+plot_learning_curve(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
 
 
 print('############## TIME ################')

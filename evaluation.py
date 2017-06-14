@@ -1,24 +1,98 @@
+from sklearn.metrics import precision_score,recall_score,accuracy_score,f1_score
+from sklearn.svm import SVC, LinearSVC
 from sklearn.cross_validation import KFold
-from sklearn.metrics import precision_score,recall_score,accuracy_score,f1_score,average_precision_score,roc_auc_score
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy import interp
-from itertools import cycle
-from sklearn.metrics import precision_recall_curve, average_precision_score , roc_curve, auc
+from sklearn.linear_model import SGDClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+
+
+def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
+    """
+    Initializes an sklearn classifier
+    :param classifier_name: string, required
+    :param cost: integer, required
+    :param n_jobs: integer, optional
+    :return: An sklearn classifier object
+    """
+    classifier_list = {
+        "SVM Linear": SVC(kernel='linear', C=cost),
+        "SVM Poly": SVC(kernel='poly', C=cost),
+        "SVM rbf": SVC(kernel='rbf', C=cost),
+        "Linear SVC": LinearSVC(C=cost),
+        "k-NN": KNeighborsClassifier(n_neighbors=100, n_jobs=n_jobs),
+        "Random Forests": RandomForestClassifier(n_estimators=350, max_features=20, max_leaf_nodes=600, n_jobs=n_jobs),
+        "Logistic Regression L1": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
+        "Logistic Regression L2": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
+        "Logistic Regression Stochastic Gradient Descent" : LogisticRegression(C=cost, penalty='l2',
+                                                                    class_weight='balanced',max_iter=500, solver='sag'),
+        "Decision Trees": DecisionTreeClassifier(min_samples_leaf=250),
+        "SGD": SGDClassifier(alpha=.0001, n_iter=50, penalty="elasticnet", n_jobs=n_jobs),
+    }
+    return classifier_list[classifier_name]
+
+def evaluate_testing(train_set, train_labels ,test_set, test_labels, classifier_name, n_jobs=4,pos_label=0):
+
+    precision, recall, f1, accuracy = 0.0, 0.0, 0.0, 0.0
+
+    classifier = init_sklearn_classifier(classifier_name, n_jobs)
+    classifier.fit(train_set, train_labels)
+    predicted_labels = classifier.predict(test_set)
+
+    precision += precision_score(test_labels, predicted_labels, pos_label=pos_label)
+    recall += recall_score(test_labels, predicted_labels, pos_label=pos_label)
+    f1 += f1_score(test_labels, predicted_labels, pos_label=pos_label)
+    accuracy += accuracy_score(test_labels, predicted_labels)
+
+    print_metrics(precision, recall, f1, accuracy, pos_label)
+
+
+def cross_validation(x, y, classifier_name, n_folds=10, n_jobs=4,pos_label=0):
+    """
+    Plots Precision Recall Curves (evaluate classifiers)
+    :param x: numpy array, required
+    :param y: list, required
+    :param classifier_name: string, required
+    :param n_folds: int, optional
+    :param n_jobs: int, optional
+    :return: Nothing. Generates a precision recall curve with matplotlib library
+    """
+
+    '''1 stands for a HAM and 0 stands for a SPAM'''
+
+    precision , recall , f1 , accuracy = 0.0 , 0.0 , 0.0 , 0.0
+
+    kf = KFold(len(x), shuffle=True, n_folds=n_folds)
+    for train_index, test_index in kf:
+        train_set, test_set, train_labels, test_labels = x[train_index], x[test_index], y[train_index], y[test_index]
+        classifier = init_sklearn_classifier(classifier_name, n_jobs)
+        classifier.fit(train_set, train_labels)
+        predicted_labels = classifier.predict(test_set)
+
+        precision += precision_score(test_labels,predicted_labels,pos_label=pos_label)
+        recall += recall_score(test_labels, predicted_labels, pos_label=pos_label)
+        f1 += f1_score(test_labels, predicted_labels, pos_label=pos_label)
+        accuracy += accuracy_score(test_labels, predicted_labels)
+
+    precision /= n_folds
+    recall /= n_folds
+    f1 /= n_folds
+    accuracy /= n_folds
+
+    print_metrics(precision,recall,f1,accuracy,pos_label)
 
 '''1 stands for a HAM and 0 stands for a SPAM'''
 
-def print_metrics(test_labels,predicted_labels,pos_label=0):
+def print_metrics(precision,recall,f1_score,accuracy,pos_label):
 
     if pos_label == 1:
         print("Predicting Hams")
     else:
         print("Predicting Spam")
 
-    print("Precision: ", precision_score(test_labels,predicted_labels,pos_label=pos_label))
-    print("Recall: ", recall_score(test_labels, predicted_labels, pos_label=pos_label))
-    print("Accuracy: ", accuracy_score(test_labels,predicted_labels))
-    print("F1: ", f1_score(test_labels, predicted_labels, pos_label=pos_label))
-    print("Average Precision: ", average_precision_score(test_labels, predicted_labels))
-    print("ROC: ", roc_auc_score(test_labels, predicted_labels))
+    print("Precision: ", precision)
+    print("Recall: ", recall)
+    print("Accuracy: ", accuracy)
+    print("F1: ", f1_score)
     print(" ")

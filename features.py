@@ -11,12 +11,6 @@ spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
 test_ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_HAM"
 test_spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_SPAM"
 
-
-ham_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_HAM"
-spam_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TRAINNING_SPAM"
-test_ham_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TESTING_HAM"
-test_spam_small = "C:\\Corpus\\CSDMC2010_SPAM\\SMALL_TESTING_SPAM"
-
 # tokenize = lambda doc: doc.lower().split(" ")
 
 def writeFeaturesDict(features):
@@ -124,7 +118,6 @@ def tf_idf_testing(list_of_docs,idf,names):
     return tfidf_documents
 
 
-
 def feature_selection(idf,max_feautures):
     sorted_x = sorted(idf.items(), key=operator.itemgetter(1), reverse=True)
     return [y[0] for y in sorted_x][:max_feautures]
@@ -208,3 +201,29 @@ def load_data():
 
     return list_of_docs,test_list_of_docs,labels_of_docs,test_labels_of_docs
 
+
+def generate_features():
+
+    start_time = time.time()
+    print("--- %s seconds ---" % (time.time() - start_time), "\n")
+
+    list_of_docs, test_list_of_docs, train_labels, test_labels = load_data()
+
+    train_feature_matrix, feature_names, idf = tf_idf(list_of_docs)
+    test_feature_matrix = tf_idf_testing(test_list_of_docs, idf, feature_names)
+
+    with open('output_files\\feature_matrix_train.pkl', "wb") as fp:
+        pickle.dump(train_feature_matrix, fp)
+
+    with open('output_files\\train_labels.pkl', "wb") as fp:
+        pickle.dump(train_labels, fp)
+
+    with open('output_files\\feature_matrix_test.pkl', "wb") as fp:
+        pickle.dump(test_feature_matrix, fp)
+
+    with open('output_files\\test_labels.pkl', "wb") as fp:
+        pickle.dump(test_labels, fp)
+
+    print('############## TIME ################')
+    print("--- %s seconds ---" % (time.time() - start_time))
+    print('###############################' + '\n')
