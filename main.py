@@ -23,28 +23,35 @@ from curves import plot_learning_curve,plot_precision_recall
 # in a short report (max. 10 pages) how your system works and its experimental results.
 
 
-test_set = np.array(pickle.load( open( 'output_files\\feature_matrix_test.pkl', "rb" ) ))
-train_set = np.array(pickle.load( open( 'output_files\\feature_matrix_train.pkl', "rb" ) ))
-test_labels = np.array(pickle.load( open( 'output_files\\test_labels.pkl', "rb" ) ))
-train_labels = np.array(pickle.load( open( 'output_files\\train_labels.pkl', "rb" ) ))
-
-
 ########################################## MAIN ##########################################
+
 start_time = time.time()
 print("--- %s seconds ---" % (time.time() - start_time), "\n")
 
 # generate_features()
 
-# print("Training evaluation \n")
-# cross_validation(train_set, train_labels, "Logistic Regression Stochastic Gradient Descent", n_folds=10, n_jobs=4,pos_label=0)
+test_set = np.array(pickle.load( open( 'output_files\\feature_matrix_test.pkl', "rb" ) ))
+train_set = np.array(pickle.load( open( 'output_files\\feature_matrix_train.pkl', "rb" ) ))
+test_labels = np.array(pickle.load( open( 'output_files\\test_labels.pkl', "rb" ) ))
+train_labels = np.array(pickle.load( open( 'output_files\\train_labels.pkl', "rb" ) ))
 
-# print("Test Evaluation with Logistic Regression SGD \n")
-# evaluate_testing(train_set, train_labels ,test_set, test_labels, "Logistic Regression Stochastic Gradient Descent", pos_label=0)
-# print("Test Evaluation with Random Forests \n")
-# evaluate_testing(train_set, train_labels ,test_set, test_labels, "Random Forests", pos_label=0)
+print("Training evaluation \n")
+cross_validation(train_set, train_labels, "Logistic Regression Stochastic Gradient Descent", n_folds=10, n_jobs=4,pos_label=0)
 
-plot_precision_recall(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
-plot_learning_curve(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
+print("Training evaluation \n")
+cross_validation(train_set, train_labels, "k-NN", n_folds=10, n_jobs=4,pos_label=0)
+
+print("Test Evaluation with Logistic Regression SGD \n")
+evaluate_testing(train_set, train_labels ,test_set, test_labels, "Logistic Regression Stochastic Gradient Descent", pos_label=0)
+
+print("Test Evaluation with Logistic Regression SGD \n")
+evaluate_testing(train_set, train_labels ,test_set, test_labels, "k-NN", pos_label=0)
+
+print("Test Evaluation with Random Forests \n")
+evaluate_testing(train_set, train_labels ,test_set, test_labels, "Random Forests", pos_label=0)
+
+# plot_precision_recall(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
+# plot_learning_curve(train_set,train_labels,"Logistic Regression Stochastic Gradient Descent")
 
 
 print('############## TIME ################')

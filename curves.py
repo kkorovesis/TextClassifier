@@ -18,13 +18,7 @@ import numpy as np
 
 
 def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
-    """
-    Initializes an sklearn classifier
-    :param classifier_name: string, required
-    :param cost: integer, required
-    :param n_jobs: integer, optional
-    :return: An sklearn classifier object
-    """
+
     classifier_list = {
         "SVM Linear": SVC(kernel='linear', C=cost),
         "SVM Poly": SVC(kernel='poly', C=cost),
@@ -44,16 +38,7 @@ def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
 
 
 def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
-    """
-    Plots Precision Recall Curves (evaluate classifiers)
-    :param x: numpy array, required
-    :param y: list, required
-    :param classifier_name: string, required
-    :param costs: list, required
-    :param n_folds: int, optional
-    :param n_jobs: int, optional
-    :return: Nothing. Generates a precision recall curve with matplotlib library
-    """
+
     mean_recall = np.linspace(0, 1, 10)
     reversed_mean_precision = 0.0
 
@@ -88,16 +73,6 @@ def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4)
 
 
 def plot_learning_curve(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
-    """
-    Plots Learning Curves (evaluate classifiers)
-    :param x: numpy array, required
-    :param y: list, required
-    :param classifier_name: string, required
-    :param cost: float, optional
-    :param n_folds: int, optional
-    :param n_jobs: int, optional
-    :return: Nothing. Generate a simple plot of the test and training learning curve.
-    """
 
     clf = init_sklearn_classifier(classifier_name, cost, n_jobs)
 

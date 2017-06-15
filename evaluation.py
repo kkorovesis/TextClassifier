@@ -9,13 +9,7 @@ from sklearn.linear_model import LogisticRegression
 
 
 def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
-    """
-    Initializes an sklearn classifier
-    :param classifier_name: string, required
-    :param cost: integer, required
-    :param n_jobs: integer, optional
-    :return: An sklearn classifier object
-    """
+
     classifier_list = {
         "SVM Linear": SVC(kernel='linear', C=cost),
         "SVM Poly": SVC(kernel='poly', C=cost),
@@ -49,17 +43,8 @@ def evaluate_testing(train_set, train_labels ,test_set, test_labels, classifier_
 
 
 def cross_validation(x, y, classifier_name, n_folds=10, n_jobs=4,pos_label=0):
-    """
-    Plots Precision Recall Curves (evaluate classifiers)
-    :param x: numpy array, required
-    :param y: list, required
-    :param classifier_name: string, required
-    :param n_folds: int, optional
-    :param n_jobs: int, optional
-    :return: Nothing. Generates a precision recall curve with matplotlib library
-    """
 
-    '''1 stands for a HAM and 0 stands for a SPAM'''
+    """ 1 stands for a HAM and 0 stands for a SPAM """
 
     precision , recall , f1 , accuracy = 0.0 , 0.0 , 0.0 , 0.0
 

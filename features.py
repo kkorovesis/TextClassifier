@@ -5,7 +5,6 @@ from collections import Counter
 import numpy as np
 np.set_printoptions(threshold=np.inf)
 
-
 ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_HAM"
 spam_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TRAINING_SPAM"
 test_ham_dir = "C:\\Corpus\\CSDMC2010_SPAM\\TESTING_HAM"
@@ -79,8 +78,6 @@ def term_freq(term, tokenized_document): # calculates the term frequency
         return 0
     return 1 + count
 
-
-
 def tf_idf(list_of_docs): # returns a list of the tf-idf scores of all docs
     tokenized_documents = []
     for doc in list_of_docs:
@@ -116,7 +113,6 @@ def tf_idf_testing(list_of_docs,idf,names):
             doc_tfidf.append(term_tfidf)
         tfidf_documents.append(doc_tfidf)
     return tfidf_documents
-
 
 def feature_selection(idf,max_feautures):
     sorted_x = sorted(idf.items(), key=operator.itemgetter(1), reverse=True)
