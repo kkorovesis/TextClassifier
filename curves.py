@@ -2,11 +2,9 @@
 # !/usr/bin/python
 
 from scipy import interp
-from sklearn.svm import SVC, LinearSVC
+from sklearn.svm import SVC
 from sklearn.metrics import auc
 from sklearn.cross_validation import KFold
-from sklearn.linear_model import SGDClassifier
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.learning_curve import learning_curve
 from sklearn.metrics import precision_recall_curve
 from sklearn.neighbors import KNeighborsClassifier
@@ -17,27 +15,28 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+def randomize(X: object, Y: object) -> object:
+    permutation = np.random.permutation(Y.shape[0])
+    X2 = X[permutation, :]
+    Y2 = Y[permutation]
+    return X2, Y2
+
+
 def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
 
     classifier_list = {
         "SVM Linear": SVC(kernel='linear', C=cost),
-        "SVM Poly": SVC(kernel='poly', C=cost),
-        "SVM rbf": SVC(kernel='rbf', C=cost),
-        "Linear SVC": LinearSVC(C=cost),
         "k-NN": KNeighborsClassifier(n_neighbors=100, n_jobs=n_jobs),
         "Random Forests": RandomForestClassifier(n_estimators=350, max_features=20, max_leaf_nodes=600, n_jobs=n_jobs),
         "Logistic Regression L1": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
         "Logistic Regression L2": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
-        "Logistic Regression Stochastic Gradient Descent": LogisticRegression(C=cost, penalty='l2',
-                                                                              class_weight='balanced', max_iter=500,
-                                                                              solver='sag'),
-        "Decision Trees": DecisionTreeClassifier(min_samples_leaf=250),
-        "SGD": SGDClassifier(alpha=.0001, n_iter=50, penalty="elasticnet", n_jobs=n_jobs),
+        "Logistic Regression Stochastic Gradient Descent" : LogisticRegression(C=cost, penalty='l2',
+                                                                    class_weight='balanced',max_iter=500, solver='sag'),
     }
     return classifier_list[classifier_name]
 
 
-def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
+def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4, pos_label=0):
 
     mean_recall = np.linspace(0, 1, 10)
     reversed_mean_precision = 0.0
@@ -49,7 +48,7 @@ def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4)
         classifier.fit(train_set, train_labels)
         predicted_labels = classifier.predict(test_set)
 
-        precision, recall, _ = precision_recall_curve(test_labels, predicted_labels)
+        precision, recall, _ = precision_recall_curve(test_labels, predicted_labels, pos_label=pos_label)
 
         reversed_recall = np.fliplr([recall])[0]
         reversed_precision = np.fliplr([precision])[0]
@@ -73,6 +72,8 @@ def plot_precision_recall(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4)
 
 
 def plot_learning_curve(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
+    
+    x2,y2 = randomize(x,y)
 
     clf = init_sklearn_classifier(classifier_name, cost, n_jobs)
 
@@ -81,7 +82,7 @@ def plot_learning_curve(x, y, classifier_name, cost=100, n_folds=10, n_jobs=4):
     plt.ylim(0.0, 1.01)
     plt.xlabel("Training Examples")
     plt.ylabel("Score")
-    train_sizes, train_scores, test_scores = learning_curve(clf, x, y,
+    train_sizes, train_scores, test_scores = learning_curve(clf, x2, y2,
                                                             cv=n_folds,
                                                             n_jobs=n_jobs,
                                                             train_sizes=np.linspace(.1, 1.0, 5))

@@ -12,17 +12,12 @@ def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
 
     classifier_list = {
         "SVM Linear": SVC(kernel='linear', C=cost),
-        "SVM Poly": SVC(kernel='poly', C=cost),
-        "SVM rbf": SVC(kernel='rbf', C=cost),
-        "Linear SVC": LinearSVC(C=cost),
         "k-NN": KNeighborsClassifier(n_neighbors=100, n_jobs=n_jobs),
         "Random Forests": RandomForestClassifier(n_estimators=350, max_features=20, max_leaf_nodes=600, n_jobs=n_jobs),
         "Logistic Regression L1": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
         "Logistic Regression L2": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
         "Logistic Regression Stochastic Gradient Descent" : LogisticRegression(C=cost, penalty='l2',
                                                                     class_weight='balanced',max_iter=500, solver='sag'),
-        "Decision Trees": DecisionTreeClassifier(min_samples_leaf=250),
-        "SGD": SGDClassifier(alpha=.0001, n_iter=50, penalty="elasticnet", n_jobs=n_jobs),
     }
     return classifier_list[classifier_name]
 
@@ -65,7 +60,7 @@ def cross_validation(x, y, classifier_name, n_folds=10, n_jobs=4,pos_label=0):
     f1 /= n_folds
     accuracy /= n_folds
 
-    print_metrics(precision,recall,f1,accuracy,pos_label)
+    print_metrics(precision, recall, f1, accuracy, pos_label)
 
 '''1 stands for a HAM and 0 stands for a SPAM'''
 
@@ -76,8 +71,8 @@ def print_metrics(precision,recall,f1_score,accuracy,pos_label):
     else:
         print("Predicting Spam")
 
-    print("Precision: ", precision)
-    print("Recall: ", recall)
-    print("Accuracy: ", accuracy)
-    print("F1: ", f1_score)
+    print("Precision: ", float("{0:.4f}".format(precision)))
+    print("Recall: ", float("{0:.4f}".format(recall)))
+    print("Accuracy: ", float("{0:.4f}".format(accuracy)))
+    print("F1: ", float("{0:.4f}".format(f1_score)))
     print(" ")
