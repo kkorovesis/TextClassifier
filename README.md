@@ -1,7 +1,7 @@
 
 Spam filter
 
-This a model that predicts if a mail is spam or ham.
+A model that predicts if a mail is spam or ham.
 
 Using ML Classifiers:
 SVM Linear,
