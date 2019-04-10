@@ -15,7 +15,7 @@ def init_sklearn_classifier(classifier_name, cost=100, n_jobs=4):
         "k-NN": KNeighborsClassifier(n_neighbors=100, n_jobs=n_jobs),
         "Random Forests": RandomForestClassifier(n_estimators=350, max_features=20, max_leaf_nodes=600, n_jobs=n_jobs),
         "Logistic Regression L1": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
-        "Logistic Regression L2": LogisticRegression(C=cost, penalty='l1', n_jobs=n_jobs),
+        "Logistic Regression L2": LogisticRegression(C=cost, penalty='l2', n_jobs=n_jobs),
         "Logistic Regression Stochastic Gradient Descent" : LogisticRegression(C=cost, penalty='l2',
                                                                     class_weight='balanced',max_iter=500, solver='sag'),
     }
